@@ -15,7 +15,6 @@ contract VotingSystem {
     // Structure to represent a voter
     struct Voter {
         bool hasVoted;
-        bool isRegistered;
     }
 
     // Address of the admin
@@ -24,7 +23,7 @@ contract VotingSystem {
     // Mapping to store candidates
     mapping(uint256 => Candidate) public candidates;
 
-    // Mapping to store whether an Aadhar number is registered as a voter
+    // Mapping to store whether an Aadhar number has voted
     mapping(string => Voter) public voters;
 
     // Number of candidates
@@ -91,13 +90,6 @@ contract VotingSystem {
         });
     }
 
-    // Function to register a voter by the admin after Aadhar verification
-    function registerVoter(string memory _aadhar) external onlyAdmin {
-        require(!voters[_aadhar].isRegistered, "Voter is already registered.");
-
-        voters[_aadhar].isRegistered = true;
-    }
-
     // Function to start the voting process and set the end time, accessible only by the admin
     function startVoting(uint256 _votingDuration) external onlyAdmin {
         // Ensure there are registered candidates to vote for
@@ -117,12 +109,7 @@ contract VotingSystem {
     function vote(
         string memory _aadhar,
         uint256 _candidateId
-    ) external votingIsStarted votingIsOngoing {
-        require(
-            voters[_aadhar].isRegistered,
-            "You are not a registered voter."
-        );
-        require(!voters[_aadhar].hasVoted, "You have already voted.");
+    ) external votingIsStarted votingIsOngoing notVoted(_aadhar) {
         require(
             _candidateId > 0 && _candidateId <= candidatesCount,
             "Invalid candidate ID."
@@ -168,9 +155,7 @@ contract VotingSystem {
 
     // Function to check and update voting status
     function updateVotingStatus() public {
-        
         votingStarted = false;
-        
     }
 
     // Event to notify when the voting process starts
