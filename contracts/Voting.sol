@@ -159,5 +159,6 @@ contract VotingSystem {
     }
 
     // Event to notify when the voting process starts
+    
     event VotingStarted(uint256 endTime);
 }
